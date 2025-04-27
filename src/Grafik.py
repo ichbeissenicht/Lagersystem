@@ -7,8 +7,8 @@ from constants import sg, sgnew, Constants, LOAD_STYLE, contrastcolorsg
 from widgets import CustomCheckbutton, Counterwidget, Ask_for_wafer_name_and_amount, CheckButtonGroup, \
     PickWaferToOutSource, PickAmountToOutSource, PickWaferToOutSource, AmountToOutSource
 
-lib.productStorageConfigPath = r"E:\Lager\library.json" #r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
-lib.productLibraryConfigPath = r"E:\Lager\storage.json" #r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
+lib.productStorageConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
+lib.productLibraryConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
 lib.readConfigStorage()
 lib.readConfigLibrary()
 # ----------------------------------------------------------------------------------------------------------------------
@@ -398,7 +398,7 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         lib.protocoll(lib.getTime(), "Eingelagert")
         lib.writeConfigLibary()
         lib.writeConfigStorage()
-        #lib.print_uuid(uuid)
+        lib.print_uuid(uuid)
 
         self.wafereintraege_wafer.clear()
         self.entry_typ.clear()
@@ -1399,7 +1399,7 @@ class Search_page(tk.MenuPage):
                 "",
                 uuid
             )
-            #lib.print_uuid(new_uuid)
+            lib.print_uuid(new_uuid)
             self.rootNoWafer.dropdown_verpackung.clear()
             self.rootNoWafer.vermerk_entry.clear()
             self.rootNoWafer.hide()
