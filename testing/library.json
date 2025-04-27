@@ -1,0 +1,167 @@
+{
+    "VZG566gNdXZpYDFCNcYMPULemj4VI5wG": {
+        "uuid": "VZG566gNdXZpYDFCNcYMPULemj4VI5wG",
+        "typ": "13451",
+        "charge": "514",
+        "stueckzahl": "11",
+        "verpackung": "Tape & Reel",
+        "protokoll": [
+            "Am 27.04.2025 20:41:26 wurden 2 Stueck ausgelagert, Notiz: ",
+            "Eingelagert am: 27.04.2025 20:00:21"
+        ],
+        "wafer": [],
+        "durchmesser": "",
+        "sperr_vermerk": false,
+        "sperr_vermerk_nummer": "",
+        "reserviert": "",
+        "vermerk": "",
+        "abspaltung": ""
+    },
+    "Ga4J5GE3rmI3zQzYzFsKtDiccnMuDNeM": {
+        "uuid": "Ga4J5GE3rmI3zQzYzFsKtDiccnMuDNeM",
+        "typ": "645",
+        "charge": "346",
+        "stueckzahl": "",
+        "verpackung": " 6 Zoll Box",
+        "protokoll": [
+            "Am 27.04.2025 20:41:51 wurden 4 Stueck ausgelagert, Notiz: ",
+            "Eingelagert am: 27.04.2025 20:01:21",
+            "Am 27.04.2025 20:01:44 wurden 5 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:02:27 wurden 35 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:03:03 wurden 4 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:10:59 wurden 1 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:12:03 wurden 10 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:13:17 wurden 23 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:14:13 wurden 8 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:16:44 wurden 2 Stueck ausgelagert, Notiz: ",
+            "Am 27.04.2025 20:40:22 wurden 23 Stueck ausgelagert, Notiz: "
+        ],
+        "wafer": [
+            {
+                "Name": "1233",
+                "Menge": 2
+            },
+            {
+                "Name": "87658",
+                "Menge": 1
+            },
+            {
+                "Name": "54hff",
+                "Menge": 65
+            },
+            {
+                "Name": "afd",
+                "Menge": 87
+            }
+        ],
+        "durchmesser": "100mm",
+        "sperr_vermerk": true,
+        "sperr_vermerk_nummer": "THOMYYYYY",
+        "reserviert": "FDFA",
+        "vermerk": "FDFSFDSFSDF",
+        "abspaltung": ""
+    },
+    "MMQ8Ts6YYnc8OPkZ8kLM8fXmG0WHbbFY": {
+        "uuid": "MMQ8Ts6YYnc8OPkZ8kLM8fXmG0WHbbFY",
+        "typ": "645",
+        "charge": "346",
+        "stueckzahl": "",
+        "verpackung": " 6 Zoll Box",
+        "protokoll": [
+            "Ausgelagert am: 27.04.2025 20:16:44"
+        ],
+        "wafer": [
+            {
+                "Name": "1233",
+                "Menge": 1
+            },
+            {
+                "Name": "87658",
+                "Menge": 1
+            }
+        ],
+        "durchmesser": "100mm",
+        "sperr_vermerk": true,
+        "sperr_vermerk_nummer": "THOMYYYYY",
+        "reserviert": "FDFA",
+        "vermerk": "",
+        "abspaltung": "Ga4J5GE3rmI3zQzYzFsKtDiccnMuDNeM"
+    },
+    "m89uwt1IEA6jP20ETBdQH3T6A2NpxpoB": {
+        "uuid": "m89uwt1IEA6jP20ETBdQH3T6A2NpxpoB",
+        "typ": "645",
+        "charge": "346",
+        "stueckzahl": "",
+        "verpackung": " 6 Zoll Box",
+        "protokoll": [
+            "Ausgelagert am: 27.04.2025 20:40:22"
+        ],
+        "wafer": [
+            {
+                "Name": "87658",
+                "Menge": 1
+            },
+            {
+                "Name": "54hff",
+                "Menge": 22
+            }
+        ],
+        "durchmesser": "100mm",
+        "sperr_vermerk": true,
+        "sperr_vermerk_nummer": "THOMYYYYY",
+        "reserviert": "FDFA",
+        "vermerk": "",
+        "abspaltung": "Ga4J5GE3rmI3zQzYzFsKtDiccnMuDNeM"
+    },
+    "fydeRhY7BQ94e4aLAnLRjV166vEMnGtg": {
+        "uuid": "fydeRhY7BQ94e4aLAnLRjV166vEMnGtg",
+        "typ": "13451",
+        "charge": "514",
+        "stueckzahl": "2",
+        "verpackung": "",
+        "protokoll": [
+            "Ausgelagert am: 27.04.2025 20:41:26"
+        ],
+        "wafer": [],
+        "durchmesser": "",
+        "sperr_vermerk": "",
+        "sperr_vermerk_nummer": "",
+        "reserviert": "",
+        "vermerk": "",
+        "abspaltung": "VZG566gNdXZpYDFCNcYMPULemj4VI5wG"
+    },
+    "KTpiEuWWPn0dWJlEyWZIP1yfVfaBt2BA": {
+        "uuid": "KTpiEuWWPn0dWJlEyWZIP1yfVfaBt2BA",
+        "typ": "645",
+        "charge": "346",
+        "stueckzahl": "",
+        "verpackung": " 6 Zoll Box",
+        "protokoll": [
+            "Ausgelagert am: 27.04.2025 20:41:51"
+        ],
+        "wafer": [
+            {
+                "Name": "1233",
+                "Menge": 1
+            },
+            {
+                "Name": "87658",
+                "Menge": 1
+            },
+            {
+                "Name": "54hff",
+                "Menge": 1
+            },
+            {
+                "Name": "afd",
+                "Menge": 1
+            }
+        ],
+        "durchmesser": "100mm",
+        "sperr_vermerk": true,
+        "sperr_vermerk_nummer": "THOMYYYYY",
+        "reserviert": "FDFA",
+        "vermerk": "",
+        "abspaltung": "Ga4J5GE3rmI3zQzYzFsKtDiccnMuDNeM"
+    }
+}
