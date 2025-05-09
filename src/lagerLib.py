@@ -30,7 +30,7 @@ def newProduct(uuid:str, name:str, charge:int, typ:int, verpackung:str)->dict:
         "verpackung": verpackung
     }
 
-def newWafer(uuid:str, typ:str, charge:str, stueckzahl:str, verpackung:str, protokoll:list, wafer:list, sperrVermerk:str, sperrVermerkNummer:str, reserviert:str, vermerk:str, durchmesser:str, abspaltung:str)->dict:
+def newWafer(uuid:str, typ:str, charge:str, stueckzahl:str, verpackung:str, protokoll:list, wafer:list, sperrVermerk:str, sperrVermerkNummer:str, reserviert:str, vermerk:str, durchmesser:str, abspaltung:str, ablaufdatum:str)->dict:
     return {
         "uuid":uuid,
         "typ": typ,
@@ -44,7 +44,8 @@ def newWafer(uuid:str, typ:str, charge:str, stueckzahl:str, verpackung:str, prot
         "sperr_vermerk_nummer":sperrVermerkNummer,
         "reserviert": reserviert,
         "vermerk": vermerk,
-        "abspaltung": abspaltung
+        "abspaltung": abspaltung,
+        "ablaufdatum": ablaufdatum
 
 
 
@@ -150,6 +151,25 @@ def newWaferFromData(uuid:str):
 def getTime():
     return time.strftime("%d.%m.%Y %H:%M:%S")
 
+def getDate():
+    return time.strftime("%Y-%m-%d")
+def getTimeInTwoYears():
+    def datum_in_zwei_jahren():
+        heute = time.localtime()
+        neues_jahr = heute.tm_year + 2
+        monat = heute.tm_mon
+        tag = heute.tm_mday
+
+        # Versuche das Datum zu bauen, fallback auf 28. Februar wenn nötig
+        try:
+            neues_datum = time.strptime(f"{neues_jahr}-{monat:02d}-{tag:02d}", "%Y-%m-%d")
+        except ValueError:
+            # Wenn z. B. 29. Februar in einem Nicht-Schaltjahr, nimm 28. Februar
+            neues_datum = time.strptime(f"{neues_jahr}-02-28", "%Y-%m-%d")
+
+        return time.strftime("%Y-%m-%d", neues_datum)
+
+    return datum_in_zwei_jahren()
 
 
 

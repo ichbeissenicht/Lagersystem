@@ -1,4 +1,3 @@
-
 import tksimple as tk
 import lagerLib as lib
 import re
@@ -6,11 +5,14 @@ from afktimer import afk_reset, afk_clear, afk_logout, enter_login, state_Switch
 from constants import sg, sgnew, Constants, LOAD_STYLE, contrastcolorsg
 from widgets import CustomCheckbutton, Counterwidget, Ask_for_wafer_name_and_amount, CheckButtonGroup, \
     PickWaferToOutSource, PickAmountToOutSource, PickWaferToOutSource, AmountToOutSource
+from excel import convertToExcel
 
 lib.productStorageConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
 lib.productLibraryConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
 lib.readConfigStorage()
 lib.readConfigLibrary()
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -20,6 +22,9 @@ class Mainpage(tk.MenuPage):
     def __init__(self, master):
         super().__init__(master, sg)
         self.admin = False
+
+
+
 
         self.button_suchen = tk.Button(self, group=sg)
         self.button_suchen.setText("Suchen")
@@ -39,21 +44,36 @@ class Mainpage(tk.MenuPage):
         self.button_einlagern.attachToolTip("Mit diesem Button können Sie Ware Einlagern", group=sg)
         self.button_einlagern.setCommand(self.open_einlagern)
 
-        self.abgelaufeneWare = tk.LabelFrame(self, group=sg)
-        self.abgelaufeneWare.placeRelative(centerY=True, centerX=True, fixWidth=1200 * Constants.resolution,
+        self.abgelaufeneWareFrame = tk.LabelFrame(self, group=sg)
+        self.abgelaufeneWareFrame.placeRelative(centerY=True, centerX=True, fixWidth=1200 * Constants.resolution,
                                            fixHeight=300 * Constants.resolution)
 
-        self.colorswitch_button = tk.Button(self, sg)
-        self.colorswitch_button.placeRelative(stickDown=True, fixWidth=200,fixHeight=75, changeX=25,changeY=-25)
-        self.colorswitch_button.setFont(20)
 
-        self.colorswitch_button.setCommand(self.farbeWechseln)
 
-        self.textAbgelaufeneWare = tk.Text(self.abgelaufeneWare, group=sg)
+
+
+
+
+        self.textAbgelaufeneWare = tk.Text(self.abgelaufeneWareFrame, group=sg)
         self.textAbgelaufeneWare.setStyle(tk.Style.FLAT)
         self.textAbgelaufeneWare.setText("Aktuell keine ausgelaufene Ware ")
         self.textAbgelaufeneWare.setFont(30)
         self.textAbgelaufeneWare.placeRelative(centerX=True, centerY=True, fixHeight=60, fixWidth=600)
+
+        self.colorswitch_button = tk.Button(self, sg)
+        self.colorswitch_button.placeRelative(stickDown=True, fixWidth=200, fixHeight=75, changeX=25, changeY=-25)
+        self.colorswitch_button.setFont(20)
+        self.colorswitch_button.setCommand(self.farbeWechseln)
+
+        self.getExcel = tk.Button(self,sg)
+        self.getExcel.setFont(20)
+        self.getExcel.setText("Excel herunterladen")
+        self.getExcel.placeRelative(stickDown=True,centerX=True,fixWidth=300,fixHeight=50, changeY=-25)
+        self.getExcel.setCommand(convertToExcel)
+        self.getExcel.setCommand(self.excelSaveConfirm)
+
+
+
 
         self.label_admin = tk.Label(self, text="°", group=sgnew)
         self.label_admin.placeRelative(fixWidth=100, fixHeight=120, stickDown=True, stickRight=True,
@@ -64,6 +84,98 @@ class Mainpage(tk.MenuPage):
             self.colorswitch_button.setText("Darkmode")
         else:
             self.colorswitch_button.setText("Whitemode")
+
+        self.showAbgelaufeneWare()
+    def excelSaveConfirm(self):
+        self.excelSaveConfirm = tk.SimpleDialog.askInfo(self,
+                                                       "Ihre Excel liegt nun im Download Ordner bereit!",
+                                                       "Info")
+    def showAbgelaufeneWare(self):
+        self.abgelaufeneWareListe = self.checkDateForExpiringDate()
+        if self.abgelaufeneWareListe == []:
+            pass
+        else:
+            self.index = 0
+
+            self.waferinfo = tk.Label(self.abgelaufeneWareFrame,sg)
+            self.waferinfo.setText("Typ: " +lib.readUuid(self.abgelaufeneWareListe[self.index])["typ"]+ "\n" + "Charge: " +lib.readUuid(self.abgelaufeneWareListe[self.index])["charge"]+ "\n" +lib.readUuid(self.abgelaufeneWareListe[self.index])["protokoll"][0]+ "\n" + "Verpackung: " +lib.readUuid(self.abgelaufeneWareListe[self.index])["verpackung"])
+
+            self.waferinfo.setFont(20)
+            self.waferinfo.placeRelative(0,0,600,215)
+
+            self.verlaengerungsdauer0 = tk.Button(self.abgelaufeneWareFrame,sg)
+            self.verlaengerungsdauer0.setFont(20)
+            self.verlaengerungsdauer0.setText("Zwei Jahre verlängern")
+            self.verlaengerungsdauer0.setCommand(self.verlaengernundnaechsterwafer)
+            self.verlaengerungsdauer0.placeRelative(0,0,300,110, stickRight=True, changeX=-3)
+
+            self.verlaengerungsdauer2 = tk.Button(self.abgelaufeneWareFrame, sg)
+            self.verlaengerungsdauer2.setFont(20)
+            self.verlaengerungsdauer2.setText("Nicht verlängern")
+            self.verlaengerungsdauer2.setCommand(self.nichtverlaengernundnaechsterwafer)
+            self.verlaengerungsdauer2.placeRelative(0, 110, 300, 110, stickRight=True , changeX=-3)
+
+    def verlaengernundnaechsterwafer(self):
+
+
+        if self.index <= len(self.abgelaufeneWareListe)-1:
+
+            self.waferinfo.setText(self.abgelaufeneWareListe[self.index])
+            lib.readUuid(self.abgelaufeneWareListe[self.index])["ablaufdatum"] = lib.getTimeInTwoYears()
+            self.index += 1
+            lib.writeConfigLibary()
+            lib.writeConfigStorage()
+
+            self.waferinfo.placeForget()
+            self.verlaengerungsdauer0.placeForget()
+            self.verlaengerungsdauer2.placeForget()
+            self.showAbgelaufeneWare()
+        else:
+
+            self.waferinfo.placeForget()
+            self.verlaengerungsdauer0.placeForget()
+            self.verlaengerungsdauer2.placeForget()
+
+    def nichtverlaengernundnaechsterwafer(self):
+        print("1")
+        if self.index <= len(self.abgelaufeneWareListe)-1:
+            print("2")
+            self.waferinfo.setText(self.abgelaufeneWareListe[self.index])
+            lib.readUuid(self.abgelaufeneWareListe[self.index])["ablaufdatum"] = lib.getTimeInTwoYears()
+            lib.delEntry(self.abgelaufeneWareListe[self.index])
+            lib.delLibraryEntry(self.abgelaufeneWareListe[self.index])
+
+            self.index += 1
+            lib.writeConfigLibary()
+            lib.writeConfigStorage()
+            self.waferinfo.placeForget()
+            self.verlaengerungsdauer0.placeForget()
+            self.verlaengerungsdauer2.placeForget()
+            self.showAbgelaufeneWare()
+        else:
+            print("3")
+            self.waferinfo.placeForget()
+            self.verlaengerungsdauer0.placeForget()
+            self.verlaengerungsdauer2.placeForget()
+
+
+
+
+
+
+
+
+
+    def checkDateForExpiringDate(self):
+
+        daten = lib.readConfigLibrary()
+        gefundene_uuids = []
+        for eintrag in daten.values():
+            if eintrag.get("ablaufdatum") == str(lib.getDate()):
+                gefundene_uuids.append(eintrag["uuid"])
+        return gefundene_uuids
+
+
 
     def farbeWechseln(self):
         Constants.whitemode = not Constants.whitemode
@@ -391,7 +503,8 @@ class Neue_ware_einlagern_page(tk.MenuPage):
                                self.reservierung_entry.getValue(),
                                self.vermerk_entry.getValue(),
                                self.dropdown_durchmesser.getValue(),
-                               ""
+                               "",
+                               lib.getTimeInTwoYears()
                                )
 
         lib.addEntry(lagerplatz_eingabe, product)
@@ -1020,6 +1133,8 @@ class Search_page(tk.MenuPage):
                                                     fixHeight=200 * Constants.resolution)
         self.button_zurueck_einlagern.attachToolTip("Zurück", group=sg)
         self.button_zurueck_einlagern.setCommand(self.openLastMenuPage)
+        self.button_zurueck_einlagern.setCommand(self.druckerButtonForget)
+
 
         self.label_admin = tk.Label(self, text="°", group=sgnew)
         self.label_admin.placeRelative(fixWidth=100, fixHeight=120, stickDown=True, stickRight=True,
@@ -1274,7 +1389,8 @@ class Search_page(tk.MenuPage):
                 lib.readUuid(self.getSelectedUuid())["reserviert"],
                 self.root.vermerk_entry.getValue(),
                 lib.readUuid(self.getSelectedUuid())["durchmesser"],
-                self.getSelectedUuid()
+                self.getSelectedUuid(),
+                lib.getTimeInTwoYears()
                 )
 
             lib.libraryData[product["uuid"]] = product
@@ -1397,7 +1513,8 @@ class Search_page(tk.MenuPage):
                 "",
                 self.rootNoWafer.vermerk_entry.getValue(),
                 "",
-                uuid
+                uuid,
+                lib.getTimeInTwoYears()
             )
             lib.print_uuid(new_uuid)
             self.rootNoWafer.dropdown_verpackung.clear()
@@ -1576,6 +1693,9 @@ class Search_page(tk.MenuPage):
         self.treeview_content.clear()
 
         self.update_treeview()
+
+    def druckerButtonForget(self):
+        self.printUuidSticker.placeForget()
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
