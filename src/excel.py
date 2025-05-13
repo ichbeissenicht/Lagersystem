@@ -2,9 +2,9 @@ import pandas as pd
 import json
 import os
 from datetime import date
+import lagerLib as lib
 
 def convertToExcel():
-
     with open(r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json", "r", encoding="utf-8") as f:
         daten = json.load(f)
     rows = []
@@ -14,27 +14,31 @@ def convertToExcel():
             continue
         wafer_str = "\n".join(f"{w['Name']}: {w['Menge']}" for w in wafer_liste)
         sperr_flag = "x" if item.get("sperr_vermerk") else ""
-
+        if any(uuid in liste for liste in lib.storageData.values()):
+            imlager = "Ja"
+        else:
+            imlager = "Nein"
+        gesamtstueckzahl = sum(item["Menge"] for item in lib.readUuid(uuid)["wafer"] if isinstance(item["Menge"], int))
         row = {
             "Typ": item.get("typ"),
             "Charge": item.get("charge"),
-            "Verpackung": item.get("verpackung"),
-            "Durchmesser": item.get("durchmesser"),
+            "Wafer/Rolle": wafer_str,
+            "Lager/Station": imlager,
+            "Verpackungsart": item.get("verpackung"),
+            "Reserviert für": item.get("reserviert"),
             "Sperrvermerk": sperr_flag,
-            "Sperrvermerk-Nummer": item.get("sperr_vermerk_nummer"),
-            "Reserviert": item.get("reserviert"),
-            "Vermerk": item.get("vermerk"),
-            "Wafer": wafer_str
+            "Gesamtstückzahl": str(gesamtstueckzahl),
+            "Durchmesser": item.get("durchmesser"),
+            "Notiz": item.get("vermerk")
+
         }
         rows.append(row)
     df = pd.DataFrame(rows)
     df = df.sort_values(by="Typ", key=lambda x: x.str.lower())
-
     downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
     datum = date.today().isoformat()
     filename = f"Bestandsliste_{datum}.xlsx"
     filepath = os.path.join(downloads_path, filename)
-
     with pd.ExcelWriter(filepath, engine="xlsxwriter") as writer:
         df.to_excel(writer, index=False, sheet_name="Bestand")
 

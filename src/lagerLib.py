@@ -30,7 +30,7 @@ def newProduct(uuid:str, name:str, charge:int, typ:int, verpackung:str)->dict:
         "verpackung": verpackung
     }
 
-def newWafer(uuid:str, typ:str, charge:str, stueckzahl:str, verpackung:str, protokoll:list, wafer:list, sperrVermerk:str, sperrVermerkNummer:str, reserviert:str, vermerk:str, durchmesser:str, abspaltung:str, ablaufdatum:str)->dict:
+def newWafer(uuid:str, typ:str, charge:str, stueckzahl:str, verpackung:str, protokoll:list, wafer:list, sperrVermerk:str, sperrVermerkNummer:str, vermerk:str, durchmesser:str, abspaltung:str, ablaufdatum:str)->dict:
     return {
         "uuid":uuid,
         "typ": typ,
@@ -42,7 +42,6 @@ def newWafer(uuid:str, typ:str, charge:str, stueckzahl:str, verpackung:str, prot
         "durchmesser": durchmesser,
         "sperr_vermerk": sperrVermerk,
         "sperr_vermerk_nummer":sperrVermerkNummer,
-        "reserviert": reserviert,
         "vermerk": vermerk,
         "abspaltung": abspaltung,
         "ablaufdatum": ablaufdatum

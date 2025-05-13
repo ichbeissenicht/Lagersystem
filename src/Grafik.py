@@ -13,6 +13,7 @@ lib.readConfigStorage()
 lib.readConfigLibrary()
 
 
+
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
 # ----------------------------------------------------------------------------------------------------------------------
@@ -395,25 +396,17 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         self.checkbox_sperrvermerk.place(x=0, y=60, width=350, height=50)
         self.checkbox_sperrvermerk.setFont(30)
 
-        self.reservierung_label = tk.Label(self.frame, group=sg)
-        self.reservierung_label.setText("Reservierung:")
-        self.reservierung_label.setFont(30)
-        self.reservierung_label.place(0, 120, 300, 50)
 
-        self.reservierung_entry = tk.Entry(self.frame, group=sg)
-        self.reservierung_entry.attachToolTip("Reservierung eingeben")
-        self.reservierung_entry.setFont(30)
-        self.reservierung_entry.place(300, 120, 500, 50)
 
         self.vermerk_label = tk.Label(self.frame, group=sg)
         self.vermerk_label.setText("Notiz:")
         self.vermerk_label.setFont(30)
-        self.vermerk_label.place(0, 180, 300, 50)
+        self.vermerk_label.place(0, 120, 300, 50)
 
         self.vermerk_entry = tk.Entry(self.frame, group=sg)
         self.vermerk_entry.attachToolTip("Notiz: ")
         self.vermerk_entry.setFont(30)
-        self.vermerk_entry.place(300, 180, 500, 50)
+        self.vermerk_entry.place(300, 120, 500, 50)
 
         self.frame_wafer_entry = tk.LabelFrame(self.frame, group=sg)
         self.frame_wafer_entry.placeRelative(fixWidth=600 * Constants.resolution, fixHeight=750 * Constants.resolution,
@@ -500,7 +493,6 @@ class Neue_ware_einlagern_page(tk.MenuPage):
                                sorted_data,
                                sperrvermerkvalue,
                                self.sperrvermerk_name_entry.getValue(),
-                               self.reservierung_entry.getValue(),
                                self.vermerk_entry.getValue(),
                                self.dropdown_durchmesser.getValue(),
                                "",
@@ -1386,7 +1378,6 @@ class Search_page(tk.MenuPage):
                 self.data,
                 lib.readUuid(self.getSelectedUuid())["sperr_vermerk"],
                 lib.readUuid(self.getSelectedUuid())["sperr_vermerk_nummer"],
-                lib.readUuid(self.getSelectedUuid())["reserviert"],
                 self.root.vermerk_entry.getValue(),
                 lib.readUuid(self.getSelectedUuid())["durchmesser"],
                 self.getSelectedUuid(),
@@ -1510,7 +1501,6 @@ class Search_page(tk.MenuPage):
                 [],
                 "",
                 "",
-                "",
                 self.rootNoWafer.vermerk_entry.getValue(),
                 "",
                 uuid,
@@ -1578,7 +1568,7 @@ class Search_page(tk.MenuPage):
             else:
                 sperrvermerk="Sperrvermerk : Nein"
 
-            self.waferinfos= "Waferdurchmesser: " +dataDict["durchmesser"]+ "\n" + sperrvermerk+ "\n" + "Reservierung: " + dataDict["reserviert"] + "\n" + "Notiz: " + dataDict["vermerk"]
+            self.waferinfos= "Waferdurchmesser: " +dataDict["durchmesser"]+ "\n" + sperrvermerk+ "\n" + "Reservierung: " + dataDict["sperr_vermerk_nummer"] + "\n" + "Notiz: " + dataDict["vermerk"]
         self.ausgabetext.setText("Typ: " + dataDict["typ"]
                                 + "\n" +
                                 dataDict["protokoll"][0]
