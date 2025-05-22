@@ -1,0 +1,36 @@
+{
+    "Q6bWWzqoRqNaZykXfEaCV166U4gfisbK": {
+        "uuid": "Q6bWWzqoRqNaZykXfEaCV166U4gfisbK",
+        "typ": "Typ",
+        "charge": "Charge",
+        "stueckzahl": "",
+        "verpackung": "Frameshipper",
+        "protokoll": [
+            "Eingelagert am: 22.05.2025 18:58:53"
+        ],
+        "wafer": [
+            {
+                "Name": "1",
+                "Menge": 143
+            },
+            {
+                "Name": "2",
+                "Menge": 145
+            },
+            {
+                "Name": "3",
+                "Menge": 41314
+            },
+            {
+                "Name": "5",
+                "Menge": 13
+            }
+        ],
+        "durchmesser": "100mm",
+        "sperr_vermerk": true,
+        "sperr_vermerk_nummer": "Name",
+        "vermerk": "Notiz",
+        "abspaltung": "",
+        "ablaufdatum": "2027-05-22"
+    }
+}

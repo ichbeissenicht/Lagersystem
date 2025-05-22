@@ -7,8 +7,8 @@ from widgets import CustomCheckbutton, Counterwidget, Ask_for_wafer_name_and_amo
     PickWaferToOutSource, PickAmountToOutSource, PickWaferToOutSource, AmountToOutSource
 from excel import convertToExcel
 
-lib.productStorageConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
-lib.productLibraryConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
+lib.productStorageConfigPath = r"C:\Users\juliu\Desktop\storage.json"#r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
+lib.productLibraryConfigPath = r"C:\Users\juliu\Desktop\library.json"#r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
 lib.readConfigStorage()
 lib.readConfigLibrary()
 
