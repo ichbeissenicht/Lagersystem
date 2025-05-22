@@ -239,7 +239,7 @@ def changeValue(uuid:str, variable:str, value:str):
 
 def print_uuid(uuid:str):
     barcode_val = uuid
-    barcode_path = r"C:\Users\juliu\Desktop\Address.label"  # Wenn adress.label im selben ordner liegt wie die ausführende .py kann auch
+    barcode_path = r"C:\Users\lenna\Desktop\Address.label"  # Wenn adress.label im selben ordner liegt wie die ausführende .py kann auch
     # mit ./adress.label ausgeführt werden
     my_printer = 'DYMO LabelWriter 450 DUO Label'
 

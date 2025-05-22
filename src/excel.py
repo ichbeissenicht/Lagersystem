@@ -5,7 +5,7 @@ from datetime import date
 import lagerLib as lib
 
 def convertToExcel():
-    with open(r"C:\Users\juliu\Desktop\library.json", "r", encoding="utf-8") as f: #r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
+    with open(r"C:\Users\lenna\Desktop\library.json", "r", encoding="utf-8") as f: #r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
         daten = json.load(f)
     rows = []
     for uuid, item in daten.items():
