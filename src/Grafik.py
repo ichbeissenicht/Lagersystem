@@ -414,7 +414,6 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         self.wafereintraege_wafer.placeRelative(changeY=-2 * Constants.resolution, changeX=-2 * Constants.resolution,
                                                 changeHeight=-50 * Constants.resolution)
         self.wafereintraege_wafer.setTableHeaders("Name", "Menge")
-
         self.wafer_eingabe_add = tk.Button(self.frame_wafer_entry, group=sg)
         self.wafer_eingabe_add.placeRelative(changeY=-2 * Constants.resolution, changeX=-2 * Constants.resolution,
                                              fixHeight=50 * Constants.resolution, stickDown=True,
@@ -754,10 +753,12 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                         lib.readUuid(data)["stueckzahl"] = str(
                             int(lib.readUuid(data)["stueckzahl"]) + int(self.stueckzahl.getValue()))
 
+
                         del lib.libraryData[uuid]
-                        #Blankes label priten zum überkleben der alten uuid
+                        lib.print_blank()
                         lib.writeConfigLibary()
                         lib.writeConfigStorage()
+
                         self.entry.clear()
                         #self.dropdown_frame.placeForget()
                         self.stueckzahl_label.placeForget()
@@ -768,10 +769,11 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                         self.uebernehmen_button.placeForget()
                         self.openHomePage(mainpage)
                         print("Fall 1")
-                        lib.print_blank()
+
                         self.lagerplatz_info = tk.SimpleDialog.askInfo(self,
                                                                        "Einzulagern in Fach " + lib.getAblagePlatz(data) + "\n"+"Aktuellen QR-Code bitte überkleben",
                                                                        "Info")
+
 
                         break
 
@@ -903,6 +905,7 @@ class Alte_ware_einlagern_page(tk.MenuPage):
 
                             result_sorted = sorted(result, key=natural_sort_key)
                             lib.readUuid(data)["wafer"] = result_sorted
+                            lib.print_blank()
                             self.lagerplatz_info = tk.SimpleDialog.askInfo(self,
                                                                            "Einzulagern in Fach " + lib.getAblagePlatz(
                                                                                data) + "\n" + "Aktuellen QR-Code bitte überkleben",
@@ -915,6 +918,7 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                             lib.readUuid(uuid)["abspaltung"] = ""
                             lib.readUuid(uuid)["verpackung"] = self.dropdown_verpackung.getValue()
                             lib.reEntry(self.lagerplatz_eingabe(),uuid)
+                            lib.print_uuid(uuid)
 
                         lib.writeConfigLibary()
                         lib.writeConfigStorage()
@@ -931,6 +935,7 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                         self.uebernehmen_button.placeForget()
                         self.openHomePage(mainpage)
                         print("Fall 1 Wafer")
+
                         break
 
             elif any(uuid in sublist for sublist in lib.abspaltungenZurueckgeben()):  # Wenn der Eintrag in einer der Abspaltungen aller storage einträge
@@ -968,6 +973,7 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                     result_sorted = sorted(result,
                                            key=lambda x: int(x['Name']) if x['Name'].isdigit() else x['Name'])
                     lib.readUuid(data)["wafer"] = result_sorted
+                    lib.print_blank()
                     self.lagerplatz_info = tk.SimpleDialog.askInfo(self,
                                                                    "Einzulagern in Fach " + lib.getAblagePlatz(
                                                                        data) + "\n" + "Aktuellen QR-Code bitte überkleben",
@@ -979,6 +985,7 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                     lib.readUuid(uuid)["abspaltung"] = ""
                     lib.readUuid(uuid)["verpackung"] = self.dropdown_verpackung.getValue()
                     lib.reEntry(self.lagerplatz_eingabe(), uuid)
+                    lib.print_uuid(uuid)
                 lib.reEntry(lib.getAblagePlatz(list(lib.abspaltungenZurueckgebenMitUuid().keys())[0]), uuid)
                 lib.delEntry(list(lib.abspaltungenZurueckgebenMitUuid().keys())[0])
 
@@ -1040,12 +1047,13 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                                                                    "Info")
 
                     del lib.libraryData[uuid]
-                    # Blankes label priten zum überkleben der alten uuid
+                    lib.print_blank()
                 else:
 
                     lib.readUuid(uuid)["abspaltung"] = ""
                     lib.readUuid(uuid)["verpackung"] = self.dropdown_verpackung.getValue()
                     lib.reEntry(self.lagerplatz_eingabe(), uuid)
+                    lib.print_uuid(uuid)
 
                 del lib.libraryData[uuid]
 
@@ -1068,6 +1076,7 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                 print("Fall 4 Wafer")
                 lib.reEntry(self.lagerplatz_eingabe(), uuid)
                 lib.readUuid(uuid)["verpackung"] = self.dropdown_verpackung.getValue()
+                lib.print_uuid(uuid)
                 lib.writeConfigLibary()
                 lib.writeConfigStorage()
                 self.entry.clear()
