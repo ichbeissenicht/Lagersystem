@@ -7,8 +7,8 @@ from widgets import CustomCheckbutton, Counterwidget, Ask_for_wafer_name_and_amo
     PickWaferToOutSource, PickAmountToOutSource, PickWaferToOutSource, AmountToOutSource
 from excel import convertToExcel
 
-lib.productStorageConfigPath = r"C:\Users\lenna\Desktop\storage.json"#r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
-lib.productLibraryConfigPath = r"C:\Users\lenna\Desktop\library.json"#r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
+lib.productStorageConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
+lib.productLibraryConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\library.json"
 lib.readConfigStorage()
 lib.readConfigLibrary()
 
@@ -23,9 +23,6 @@ class Mainpage(tk.MenuPage):
     def __init__(self, master):
         super().__init__(master, sg)
         self.admin = False
-
-
-
 
         self.button_suchen = tk.Button(self, group=sg)
         self.button_suchen.setText("Suchen")
@@ -403,10 +400,10 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         self.vermerk_label.setFont(30)
         self.vermerk_label.place(0, 120, 300, 50)
 
-        self.vermerk_entry = tk.Entry(self.frame, group=sg)
+        self.vermerk_entry = tk.Text(self.frame, group=sg)
         self.vermerk_entry.attachToolTip("Notiz: ")
         self.vermerk_entry.setFont(30)
-        self.vermerk_entry.place(300, 120, 500, 50)
+        self.vermerk_entry.place(300, 120, 500, 110)
 
         self.frame_wafer_entry = tk.LabelFrame(self.frame, group=sg)
         self.frame_wafer_entry.placeRelative(fixWidth=600 * Constants.resolution, fixHeight=750 * Constants.resolution,
@@ -592,6 +589,13 @@ class Alte_ware_einlagern_page(tk.MenuPage):
         self.entry.attachToolTip("Erwarte QR-CODE")
         self.entry.bind(self.get_on_search, tk.EventType.RETURN)
 
+        self.headerLabel = tk.Label(self,sg)
+        self.headerLabel.setFont(30)
+        self.headerLabel.setText("Erwarte Scan...")
+        self.headerLabel.placeRelative(centerX=True, centerY=True, changeY=-600 * Constants.resolution,
+                                 changeX=100 * Constants.resolution, fixWidth=1000 * Constants.resolution,
+                                 fixHeight=100 * Constants.resolution)
+
         self.label_admin = tk.Label(self, text="°", group=sgnew)
         self.label_admin.placeRelative(fixWidth=100, fixHeight=120, stickDown=True, stickRight=True,
                                        changeY=+45)  # TODO:Anpassbar
@@ -764,10 +768,11 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                         self.uebernehmen_button.placeForget()
                         self.openHomePage(mainpage)
                         print("Fall 1")
-
+                        lib.print_blank()
                         self.lagerplatz_info = tk.SimpleDialog.askInfo(self,
                                                                        "Einzulagern in Fach " + lib.getAblagePlatz(data) + "\n"+"Aktuellen QR-Code bitte überkleben",
                                                                        "Info")
+
                         break
 
             elif any(uuid in sublist for sublist in lib.abspaltungenZurueckgeben()):  # Wenn der Eintrag in einer der Abspaltungen aller storage einträge

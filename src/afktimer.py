@@ -150,10 +150,10 @@ def enter_login():
     out = tk.SimpleDialog.askString(Constants.master, "Bitte Einscannen!", "Login", hideWith="*")
     if out is None:
         return
-    elif out != None and out != "2734596345":
+    elif out != None and out != "1379":
         wrong_password()
 
-    elif out == "2734596345":  # Passwort
+    elif out == "1379":  # Passwort
         login()
 
 

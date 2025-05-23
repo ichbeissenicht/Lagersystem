@@ -239,7 +239,7 @@ def changeValue(uuid:str, variable:str, value:str):
 
 def print_uuid(uuid:str):
     barcode_val = uuid
-    barcode_path = r"C:\Users\lenna\Desktop\Address.label"  # Wenn adress.label im selben ordner liegt wie die ausführende .py kann auch
+    barcode_path = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\Address.label"  # Wenn adress.label im selben ordner liegt wie die ausführende .py kann auch
     # mit ./adress.label ausgeführt werden
     my_printer = 'DYMO LabelWriter 450 DUO Label'
 
@@ -252,6 +252,25 @@ def print_uuid(uuid:str):
     printer_label.SetField("TEXT_1", readUuid(uuid)["charge"])
     printer_label.SetField("TEXT_2", readUuid(uuid)["typ"])
 
+    printer_com.StartPrintJob()
+    printer_com.Print(1, False)
+    printer_com.EndPrintJob()
+def print_blank():
+    barcode_val = None
+    barcode_path = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\Address.label"  # Wenn adress.label im selben ordner liegt wie die ausführende .py kann auch
+    # mit ./adress.label ausgeführt werden
+    my_printer = 'DYMO LabelWriter 450 DUO Label'
+
+    printer_com = Dispatch("Dymo.DymoAddIn")
+    printer_com.SelectPrinter(my_printer)
+    printer_com.Open(barcode_path)
+
+    printer_label = Dispatch("Dymo.DymoLabels")
+    printer_label.SetField("Barcode", "")
+    printer_label.SetField("TEXT_1", "")
+    printer_label.SetField("TEXT_2", "")
+    printer_label.SetField("Charge", "")
+    printer_label.SetField("Typ", "")
     printer_com.StartPrintJob()
     printer_com.Print(1, False)
     printer_com.EndPrintJob()

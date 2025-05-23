@@ -289,21 +289,7 @@ class PickAmountToOutSource(tk.Dialog):
                                                   fixHeight=50,
                                                   fixWidth=200)
 
-        self.label_verpackung = tk.Label(self, group=sg)
-        self.label_verpackung.setFont(20)
-        self.label_verpackung.setText("Verpackung: ")
-        self.dropdown_frame = tk.LabelFrame(self, group=sg)
 
-        self.dropdown_verpackung = tk.DropdownMenu(self.dropdown_frame, group=sg,
-                                                   optionList=["Singleframeshipper","Frameshipper", "Tape & Reel", "8 Zoll Box","6 Zoll Box", "Andere"])
-        self.dropdown_verpackung.attachToolTip("Nur relevant wenn selbe Ware nicht bereits eingelagert ist")
-        self.dropdown_verpackung.setFont(20)
-        self.label_verpackung.placeRelative(centerX=True, centerY=True, changeY=-100, fixWidth=250, fixHeight=50,
-                                            changeX=-120)
-        self.dropdown_frame.placeRelative(centerX=True, centerY=True, changeY=-100, fixWidth=250, fixHeight=52,
-                                          changeX=100)
-        self.dropdown_verpackung.placeRelative(centerX=True, centerY=True, fixWidth=250, fixHeight=50, changeX=-1,
-                                               changeY=-2)
 
         self.label_info = tk.Label(self, group=sg)
         self.label_info.setFont(30)
@@ -313,27 +299,27 @@ class PickAmountToOutSource(tk.Dialog):
         self.stueckzahl_label = tk.Label(self, group=sg)
         self.stueckzahl_label.setFont(20)
         self.stueckzahl_label.setText("Auslagern")
-        self.stueckzahl_label.placeRelative(centerX=True, centerY=True, changeX=-140, fixWidth=150, fixHeight=50)
+        self.stueckzahl_label.placeRelative(centerX=True, centerY=True, changeX=-140, fixWidth=150, fixHeight=50,changeY=-100)
 
         self.stueckzahl_alt_von = tk.Label(self, group=sg)
         self.stueckzahl_alt_von.setFont(20)
-        self.stueckzahl_alt_von.placeRelative(centerX=True, centerY=True, changeX=130, fixWidth=200, fixHeight=50)
+        self.stueckzahl_alt_von.placeRelative(centerX=True, centerY=True, changeX=130, fixWidth=200, fixHeight=50,changeY=-100)
         self.stueckzahl_alt_von.setTextOrientation(tk.Anchor.LEFT)
 
         self.stueckzahl_alt = tk.Entry(self, group=sg)
         self.stueckzahl_alt.setFont(20)
-        self.stueckzahl_alt.placeRelative(centerX=True, centerY=True, changeX=-25, fixWidth=100, fixHeight=50)
+        self.stueckzahl_alt.placeRelative(centerX=True, centerY=True, changeX=-25, fixWidth=100, fixHeight=50,changeY=-100)
 
         self.vermerk_entry = tk.Entry(self, group=sg)
         self.vermerk_entry.setFont(20)
         self.vermerk_entry.placeRelative(centerX=True, centerY=True, changeX=70, fixWidth=300, fixHeight=50,
-                                         changeY=100)
+                                         changeY=0)
 
         self.vermerk_label = tk.Label(self, group=sg)
         self.vermerk_label.setFont(20)
         self.vermerk_label.setText("Notiz: ")
         self.vermerk_label.placeRelative(centerX=True, centerY=True, changeX=-140, fixWidth=120, fixHeight=50,
-                                         changeY=100)
+                                         changeY=0)
 
         self.button_wafer_cancel.setCommand(self.cancel)
 
