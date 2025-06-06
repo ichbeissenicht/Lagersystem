@@ -225,7 +225,7 @@ class PickWaferToOutSource(tk.Dialog):
                                                   fixHeight=400 * constants.Constants.resolution)
         self.scrollbar = tk.ScrollBar(self)
         self.wafer_treeview_auswahl.attachVerticalScrollBar(self.scrollbar)
-        self.wafer_treeview_auswahl.setTableHeaders("Nummer", "Stückzahl")
+        self.wafer_treeview_auswahl.setTableHeaders("ID", "Stückzahl")
 
         self.button_wafer_auslagern = tk.Button(self, group=sg)
         self.button_wafer_auslagern.setText("Auswählen")
@@ -355,7 +355,7 @@ class AmountToOutSource(tk.Dialog):
         self.button_wafer_auslagern.placeRelative(stickDown=True, stickRight=False, changeY=-2, changeX=-2,
                                                   fixHeight=50, fixWidth=200)
         self.headline = tk.Label(self,group=sg)
-        self.headline.setText(" Nummer:             Stückzahl:   ")
+        self.headline.setText(" ID:                   Stückzahl:   ")
         self.headline.setFont(30)
         self.headline.placeRelative(centerX=True, fixHeight=50, fixWidth=600)
 
@@ -384,13 +384,13 @@ class AmountToOutSource(tk.Dialog):
             if selectedEntries[i]["Stückzahl"] == "Unbekannt":
 
                 entry.setStyle(tk.Style.FLAT)
-                label.setText(str(selectedEntries[i]["Nummer"]))
+                label.setText(str(selectedEntries[i]["ID"]))
                 entry.setText("Unbekannt")
                 label_unbekannt.setText("Unbekannt")
                 label_unbekannt.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=550)
                 label.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=200)
             else:
-                label.setText(str(selectedEntries[i]["Nummer"]))
+                label.setText(str(selectedEntries[i]["ID"]))
                 entry.setText(selectedEntries[i]["Stückzahl"])
                 entry.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=550)
                 label.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=200)
@@ -445,3 +445,96 @@ class SingleSelectTreeview(tk.TreeView):
             else:
                 self._selectedIndices.append(index[0])
             self._updateSelection()
+
+class LargeCombobox(tk.Frame):
+    def __init__(self, _master, group:tk.WidgetGroup=None, selectionWindowHeight:int=330):
+        super().__init__(_master, group=group)
+        self._framePos = None
+        self._master = _master
+        self._isSelectionOpen = False
+        self._func = None
+        self._args = None
+        self._selectionWindowHeight = selectionWindowHeight
+        self._openBtn = tk.Button(self, group, "\u25BC")
+        self._openBtn.setCommand(self._open)
+        self._label = tk.Label(self, group)
+        self._label.bind(self._open, tk.EventType.LEFT_CLICK_RELEASE, args=["entry"])
+        self._listWindow = tk.Toplevel(_master._getTkMaster(), group)
+        self._listWindow.setResizeable(False)
+        self._listWindow.overrideredirect()
+        self._listWindow.hide()
+        self._list = tk.Listbox(self._listWindow, group)
+        self._list.placeRelative()
+
+        self.bind(self._resize, tk.EventType.CUSTOM_RELATIVE_UPDATE_AFTER)
+
+        self.getParentWindow().bind(self._close, tk.EventType.LEFT_CLICK_PRESS, args=["master"])
+
+        tk._EventHandler._registerNewEvent(
+            self._list,
+            self._hook,
+            tk.EventType.LISTBOX_SELECT,
+            None,
+            0,
+            decryptValueFunc=self._own_decryptEvent)
+
+    def onSelectEvent(self, func, args:list=None):
+        self._func = func
+        self._args = args
+
+    def setFont(self, size=10, art=tk.FontType.ARIAL, underline=False, bold=False, italic=False, overstrike=False):
+        self._openBtn.setFont(size, art, underline, bold, italic, overstrike)
+        self._list.setFont(size, art, underline, bold, italic, overstrike)
+        self._label.setFont(size, art, underline, bold, italic, overstrike)
+
+    def setValue(self, s:str):
+        self._label.setText(s)
+
+    def getValue(self)->str:
+        return self._label.getText()
+
+    def setOptionList(self, l:list[str]):
+        self._list.addAll(l)
+
+    def place(self, x=None, y=None, width=None, height=None, anchor:tk.Anchor=tk.Anchor.UP_LEFT):
+        super().place(x, y, width, height, anchor)
+        event = tk.Event()
+        event["value"] = [x, y, width, height]
+        self._resize(event)
+
+    def _resize(self, e:tk.Event):
+        value = e.getValue()
+        if value is None: return
+        x, y, w, h = e.getValue()
+        self._openBtn.place(w - h, 0, h, h)
+        self._label.place(0, 0, w - h, h)
+        self._framePos = x,y,w,h
+
+    def _open(self):
+        if self._isSelectionOpen:
+            self._close()
+            return
+        self._isSelectionOpen = True
+        loc = self.getPositionRelativeToScreen()
+        if self._framePos is None: return
+        x, y, w, h = self._framePos
+        loc.change(y=h)
+        self._listWindow.setPositionOnScreen(loc.toInt())
+        self._listWindow.setWindowSize(w, self._selectionWindowHeight)
+        self._listWindow.show()
+
+    def _close(self):
+        self._isSelectionOpen = False
+        self._listWindow.hide()
+        self._list.clearSelection()
+
+    def _own_decryptEvent(self, args, event):
+        value = self._list.getSelectedItem()
+        if value is None: return self._list._decryptEvent(args, event)
+        self._close()
+        self._label.setText(value)
+
+    def _hook(self, e):
+        e["args"] = self._args
+        if self._func is not None:
+            self._func(e)

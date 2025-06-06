@@ -35,7 +35,7 @@ def convertToExcel():
         rows.append(row)
     df = pd.DataFrame(rows)
     df = df.sort_values(by="Typ", key=lambda x: x.str.lower())
-    downloads_path = os.path.join(os.path.expanduser("~"), "Downloads")
+    downloads_path = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager"
     datum = date.today().isoformat()
     filename = f"Bestandsliste_{datum}.xlsx"
     filepath = os.path.join(downloads_path, filename)

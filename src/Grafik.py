@@ -4,7 +4,7 @@ import re
 from afktimer import afk_reset, afk_clear, afk_logout, enter_login, state_Switch
 from constants import sg, sgnew, Constants, LOAD_STYLE, contrastcolorsg
 from widgets import CustomCheckbutton, Counterwidget, Ask_for_wafer_name_and_amount, CheckButtonGroup, \
-    PickWaferToOutSource, PickAmountToOutSource, PickWaferToOutSource, AmountToOutSource
+    PickWaferToOutSource, PickAmountToOutSource, PickWaferToOutSource, AmountToOutSource, LargeCombobox
 from excel import convertToExcel
 
 lib.productStorageConfigPath = r"L:\AENE\ne-pm\01_EPC\60_labor\60_Lagerhaltung\Musterlager\storage.json"
@@ -22,23 +22,26 @@ lib.readConfigLibrary()
 class Mainpage(tk.MenuPage):
     def __init__(self, master):
         super().__init__(master, sg)
+        Constants.adminLoginUpdateHook.append(self.place_einlagern)
         self.admin = False
+        #Constants.adminLoginUpdateHook.append(self.place_einlagern())
+
+
+
 
         self.button_suchen = tk.Button(self, group=sg)
         self.button_suchen.setText("Suchen")
         self.button_suchen.setFont(30)
         self.button_suchen.placeRelative(centerX=True, centerY=True, changeY=-450 * Constants.resolution,
-                                         fixWidth=400 * Constants.resolution, fixHeight=200 * Constants.resolution,
-                                         changeX=450 * Constants.resolution)
+                                         fixWidth=1100 * Constants.resolution, fixHeight=200 * Constants.resolution,
+                                         changeX=0 * Constants.resolution)
         self.button_suchen.attachToolTip("Mit diesem Button können Sie nach Ware suchen", group=sg)
         self.button_suchen.setCommand(self.open_search)
 
         self.button_einlagern = tk.Button(self, group=sg)
         self.button_einlagern.setText("Einlagern")
         self.button_einlagern.setFont(30)
-        self.button_einlagern.placeRelative(centerX=True, centerY=True, changeY=-450 * Constants.resolution,
-                                            changeX=-450 * Constants.resolution, fixWidth=400 * Constants.resolution,
-                                            fixHeight=200 * Constants.resolution)
+
         self.button_einlagern.attachToolTip("Mit diesem Button können Sie Ware Einlagern", group=sg)
         self.button_einlagern.setCommand(self.open_einlagern)
 
@@ -86,7 +89,7 @@ class Mainpage(tk.MenuPage):
         self.showAbgelaufeneWare()
     def excelSaveConfirm(self):
         self.excelSaveConfirm = tk.SimpleDialog.askInfo(self,
-                                                       "Ihre Excel liegt nun im Download Ordner bereit!",
+                                                       "Ihre Excel wurde gespeichert!",
                                                        "Info")
     def showAbgelaufeneWare(self):
         self.abgelaufeneWareListe = self.checkDateForExpiringDate()
@@ -182,6 +185,22 @@ class Mainpage(tk.MenuPage):
         else:
             self.colorswitch_button.setText("Whitemode")
         LOAD_STYLE()
+
+    def place_einlagern(self):
+        if Constants.admin == True:
+            self.button_suchen.placeRelative(centerX = True, centerY = True, changeY = -450 * Constants.resolution,
+            fixWidth = 400 * Constants.resolution, fixHeight = 200 * Constants.resolution,
+            changeX = 450 * Constants.resolution)
+            self.button_einlagern.placeRelative(centerX=True, centerY=True, changeY=-450 * Constants.resolution,
+                                             fixWidth=400 * Constants.resolution, fixHeight=200 * Constants.resolution,
+                                             changeX=-450 * Constants.resolution)
+
+        else:
+            self.button_einlagern.placeForget()
+            self.button_suchen.placeRelative(centerX=True, centerY=True, changeY=-450 * Constants.resolution,
+                                         fixWidth=1100 * Constants.resolution, fixHeight=200 * Constants.resolution,
+                                         changeX=0 * Constants.resolution)
+
 
     def onShow(self, **kwargs):
         self.placeRelative()
@@ -311,11 +330,13 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         self.dropdown_frame = tk.LabelFrame(self.eingabeFelder, group=sg)
         self.dropdown_frame.place(x=300, y=120, width=500, height=50)
 
-        self.dropdown_verpackung = tk.DropdownMenu(self.dropdown_frame, group=sg,
-                                                   optionList=["Single-Frameshipper","Frameshipper", "Tape & Reel", "8 Zoll Box", " 6 Zoll Box", "Andere"])
+        self.dropdown_verpackung = LargeCombobox(self.dropdown_frame, group=sg)
+
+        self.dropdown_verpackung.setOptionList(["Single-Frameshipper","Frameshipper", "Tape & Reel", "8 Zoll Box", "6 Zoll Box", "Andere", "12 Zoll Box"])
         self.dropdown_verpackung.place(x=0, y=0, width=497, height=46)
         self.dropdown_verpackung.setFont(30)
         self.dropdown_verpackung.attachToolTip("Verpackung auswählen")
+
 
         self.entry_stueckzahl_label = tk.Label(self.eingabeFelder, group=sg)
         self.entry_stueckzahl_label.setFont(30)
@@ -338,7 +359,7 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         self.dropdown_durchmesser_frame.place(x=300, y=0, width=500, height=50)
 
         self.dropdown_durchmesser = tk.DropdownMenu(self.dropdown_durchmesser_frame, group=sg,
-                                                    optionList=["50mm", "100mm", "120mm"])
+                                                    optionList=["150mm", "200mm", "300mm"])
         self.dropdown_durchmesser.place(x=0, y=0, width=497, height=46)
         self.dropdown_durchmesser.setFont(30)
         self.dropdown_durchmesser.attachToolTip("Durchmesser des Wafers auswählen")
@@ -360,10 +381,10 @@ class Neue_ware_einlagern_page(tk.MenuPage):
 
         self.checkbox_wafer = CustomCheckbutton(self.eingabeFelder, group=sg, checkButton=self.checkbox_group_wafer)
         self.checkbox_wafer.setCommand(checkbox_wafer_abfrage)
-        self.checkbox_wafer.setText("Wafer:")
+        self.checkbox_wafer.setText("Details:")
         self.checkbox_wafer.place(x=0, y=180, width=350, height=50)
         self.checkbox_wafer.setFont(30)
-        self.checkbox_wafer.attachToolTip("Bitte ankreuzen wenn es sich um Wafer handelt")
+        self.checkbox_wafer.attachToolTip("Bitte ankreuzen wenn genauere Angaben gemacht werden sollen")
 
         self.sperrvermerk_name_label = tk.Label(self.frame, group=sg)
         self.sperrvermerk_name_label.setText("Name: ")
@@ -413,7 +434,7 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         self.wafereintraege_wafer.setSingleSelect()
         self.wafereintraege_wafer.placeRelative(changeY=-2 * Constants.resolution, changeX=-2 * Constants.resolution,
                                                 changeHeight=-50 * Constants.resolution)
-        self.wafereintraege_wafer.setTableHeaders("Name", "Menge")
+        self.wafereintraege_wafer.setTableHeaders("ID", "Stückzahl")
         self.wafer_eingabe_add = tk.Button(self.frame_wafer_entry, group=sg)
         self.wafer_eingabe_add.placeRelative(changeY=-2 * Constants.resolution, changeX=-2 * Constants.resolution,
                                              fixHeight=50 * Constants.resolution, stickDown=True,
@@ -693,7 +714,7 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                 self.list_entries_and_labels = []
                 self.headline = tk.Label(self, group=sg)
                 self.dropdown_frame_verpackung_label.placeRelative(centerX=True, changeY=100,changeX=-125,centerY=True, fixWidth=300, fixHeight=30)
-                self.headline.setText(" Nummer:                Stückzahl:   ")
+                self.headline.setText(" ID:                    Stückzahl:   ")
                 self.headline.setFont(20)
                 self.headline.placeRelative(centerX=True, fixHeight=50, fixWidth=600, changeY=340)
                 self.dropdown_frame.placeRelative(centerX=True, changeY=100,changeX=125,centerY=True, fixWidth=300, fixHeight=30)
@@ -1140,6 +1161,7 @@ class Search_page(tk.MenuPage):
         self.button_zurueck_einlagern.attachToolTip("Zurück", group=sg)
         self.button_zurueck_einlagern.setCommand(self.openLastMenuPage)
         self.button_zurueck_einlagern.setCommand(self.druckerButtonForget)
+
 
 
         self.label_admin = tk.Label(self, text="°", group=sgnew)

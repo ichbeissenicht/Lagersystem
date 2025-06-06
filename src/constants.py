@@ -14,8 +14,8 @@ class Constants:
     admin = False
     master = None
     checkbox_wafer = False
-    afk_timer = 5
-    afk_window_timer = 10
+    afk_timer = 300
+    afk_window_timer = 30
     resolution = Resolution.FullHD
     whitemode = False
 

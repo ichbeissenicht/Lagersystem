@@ -80,6 +80,9 @@ class Location2D:
     def __add__(self, other):
         return Location2D(self.getX() + other.getX(), self.getY() + other.getY())
 
+    def __sub__(self, other):
+        return Location2D(self.getX() - other.getX(), self.getY() - other.getY())
+
     def __repr__(self):
         return "Location2D(" + str(self["x"]) + ", " + str(self["y"]) + ")"
 
@@ -157,6 +160,23 @@ def _map(value, iMin, iMax, oMin=None, oMax=None):
         iMin = 0
         oMin = 0
     return int((value - iMin) * (oMax - oMin) / (iMax - iMin) + oMin)
+
+
+def _lockable(func):
+    """
+    Decorator for locking Widgets which can be disabled.
+    """
+
+    def _callable(*args):
+        obj = args[0]
+        if isinstance(obj, _LockableWidget):
+            obj._unlock()
+            retVal = func(*args)
+            obj._lock()
+            return retVal
+        return func(*args)
+
+    return _callable
 
 
 class Rect:
@@ -1084,7 +1104,10 @@ class _EventHandler:
             if type(err) == KeyError:
                 print(_info)
             else:
-                err.args = (str(_info) + str(err.args[0]),)
+                if len(err.args) > 0:
+                    err.args = (str(_info) + str(err.args[0]),)
+                else:
+                    err.args = (str(_info),)
 
         args = args[0] if len(args) == 1 else list(args)
         event = None
@@ -1777,7 +1800,23 @@ class Tk:
         self["master"].minsize(x, y)
 
     # Getter
-    def getMousePosition(self):
+    def getPositionOnScreen(self) -> Location2D:
+        return Location2D(
+            self["master"].winfo_rootx(),
+            self["master"].winfo_rooty()
+        )
+
+    def getMousePositionRelativeToScreen(self) -> Location2D:
+        """
+        Returns the current mouse position relative to Screen.
+        @return:
+        """
+        return Location2D(
+            self["master"].winfo_pointerx(),
+            self["master"].winfo_pointery()
+        )
+
+    def getMousePosition(self) -> Location2D:
         """
         Returns the current mouse position on the TK window.
         @return:
@@ -1829,6 +1868,12 @@ class Tk:
         @return:
         """
         return self["master"].winfo_width(), self["master"].winfo_height()
+
+    def getParentWindow(self):
+        """
+        Returns Parent Master instance. Tk, Toplevel or Dialog.
+        """
+        return self._getTkMaster()
 
     # Fix
     def clearAllWidgets(self):
@@ -2088,6 +2133,14 @@ class Tk:
         point(widget)
         return ch
 
+    def _getTkMaster(self):
+        """
+        Returns the highest master (Tk/Toplevel) of this widget.
+
+        @return:
+        """
+        return self
+
     def _get(self):
         return self["master"]
 
@@ -2157,8 +2210,9 @@ class Dialog(Toplevel):
 
         @return:
         """
-        self._get().grab_set()
         self["master"].deiconify()
+        self._get().wait_visibility()
+        self._get().grab_set()
 
     def hide(self):
         """
@@ -2226,6 +2280,7 @@ class Widget:
         self._data.clear()
 
     # Attribute Setter Methods
+    @_lockable
     def setBg(self, col: Union[Color, str]):
         """
         Set the background color of this widget.
@@ -2401,7 +2456,7 @@ class Widget:
         self.updateIdleTasks()
         return self["widget"].winfo_width()
 
-    def getRelScreenPos(self) -> Location2D:
+    def getPositionRelativeToScreen(self) -> Location2D:
         """
         Returns the location of this widget relative to the screen.
         """
@@ -2436,6 +2491,12 @@ class Widget:
         @return:
         """
         return Location2D(self["widget"].winfo_vrootx(), self["widget"].winfo_vrooty())
+
+    def getParentWindow(self) -> Tk | Toplevel | Dialog:
+        """
+        Returns Parent Master instance. Tk, Toplevel or Dialog.
+        """
+        return self._getTkMaster()
 
     # Misc Methods
     def isFocus(self):
@@ -2729,7 +2790,7 @@ class Widget:
             self._setAttribute(k, v)
         return self
 
-    def _getTkMaster(self) -> Tk | Toplevel:
+    def _getTkMaster(self) -> Tk | Toplevel | Dialog:
         """
         Returns the highest master (Tk/Toplevel) of this widget.
 
@@ -2799,6 +2860,52 @@ class Widget:
 
     def _get(self):
         return self["widget"]
+
+
+class _LockableWidget(Widget):
+    """
+    Private implementation of tkinter's [state="disabled"].
+    """
+
+    def __init__(self, ins, _data, group):
+        self._isDisabled = False
+        if not hasattr(self, "_isReadOnly"):
+            self._isReadOnly = False
+        self._lockVal = 0
+        super().__init__(ins, _data, group)
+
+        # setReadOnly
+        if self._isReadOnly:
+            self.setDisabled()
+            return
+        self.setEnabled()
+
+    def _setReadOnly(self, b: bool):
+        self._isReadOnly = b
+
+    def _unlock(self):
+        self._lockVal += 1
+        if self._lockVal > 1: return
+        # enter UnLocking
+        if not self._isDisabled: return
+        super().setEnabled()
+
+    def _lock(self):
+        self._lockVal -= 1
+        if self._lockVal != 0: return
+        # leave Unlocking
+        if self._isReadOnly or self._isDisabled:
+            super().setDisabled()
+
+    def setEnabled(self):
+        if not self._isDisabled: return
+        super().setEnabled()
+        self._isDisabled = False
+
+    def setDisabled(self):
+        if self._isDisabled: return
+        super().setDisabled()
+        self._isDisabled = True
 
 
 class _WidgetGroupMethod:
@@ -4051,13 +4158,13 @@ class OnOffButton(Widget):
         return self["value"]
 
 
-class Entry(Widget):
+class Entry(_LockableWidget):
     """
     Widget:
     The Entry is used to ask single line text from the user.
     """
 
-    def __init__(self, _master, group=None):
+    def __init__(self, _master, group=None, readOnly=False):
         self.getValue = self.getText
         self.setValue = self.setText
         if isinstance(_master, dict):
@@ -4067,6 +4174,7 @@ class Entry(Widget):
         elif isinstance(_master, Tk) or isinstance(_master, NotebookTab) or isinstance(_master, Canvas) or isinstance(
                 _master, Frame) or isinstance(_master, LabelFrame):
             self._data = {"master": _master, "widget": _tk.Entry(_master._get())}
+            self._setReadOnly(readOnly)
         else:
             raise TKExceptions.InvalidWidgetTypeException(
                 "_master must be " + str(self.__class__.__name__) + ", Frame or Tk instance not: " + str(
@@ -4157,6 +4265,7 @@ class Entry(Widget):
         self._setAttribute("show", str(i))
         return self
 
+    @_lockable
     def clear(self):
         """
         Clears the Entry.
@@ -4165,6 +4274,7 @@ class Entry(Widget):
         self["widget"].delete(0, _tk.END)
         return self
 
+    @_lockable
     def setText(self, text: str):
         """
         Overwrites the text content in the Entry.
@@ -4175,6 +4285,7 @@ class Entry(Widget):
         self["widget"].insert(0, str(text))
         return self
 
+    @_lockable
     def addText(self, text: str, index="end"):
         """
         Adds the text at 'index', by default at the end.
@@ -4614,7 +4725,7 @@ class Listbox(Widget):
             self.setSlotBg((self.length() - 1 if index == "end" else index), color)
         return self
 
-    def addAll(self, entry: [str], index="end", color: Union[Color, str] = None):
+    def addAll(self, entry: List[str], index: str = "end", color: Union[Color, str] = None):
         """
         Adds a list of entrys to the Listbox.
         When adding large amounts of items this is way faster than 'add' method and a for loop.
@@ -5108,7 +5219,7 @@ class _ScrolledText(_tk.Text):
         return str(self.frame)
 
 
-class Text(Widget):
+class Text(_LockableWidget):
     """
     Widget:
     Textbox where the user can input Text.
@@ -5127,8 +5238,8 @@ class Text(Widget):
                 _master, Frame) or isinstance(_master, LabelFrame):
             self._data = {"master": _master,
                           "widget": _ScrolledText(_master._get()) if scrollAble else _tk.Text(_master._get()),
-                          "forceScroll": forceScroll, "tagCounter": 0, "scrollable": scrollAble,
-                          "init": {"state": "disabled" if readOnly else "normal"}}
+                          "forceScroll": forceScroll, "tagCounter": 0, "scrollable": scrollAble}
+            self._setReadOnly(readOnly)
         else:
             raise TKExceptions.InvalidWidgetTypeException(
                 "_master must be " + str(self.__class__.__name__) + ", Frame or Tk instance not: " + str(
@@ -5239,6 +5350,7 @@ class Text(Widget):
         self.addText(text, color, font)
         return self
 
+    @_lockable
     def addText(self, text: str, color: Union[Color, str] = "black", font: Font = None):
         """
         Adds text to the Text box.
@@ -5249,11 +5361,7 @@ class Text(Widget):
         @return:
         """
         color = color.value if hasattr(color, "value") else color
-        disableAfterWrite = False
         self["tagCounter"] += 1
-        if self["widgetProperties"]["state"] == "disabled":
-            self.setEnabled()
-            disableAfterWrite = True
         content = self.getText()
         self["widget"].insert("end", str(text))
         if color != "black" or font is not None:
@@ -5274,8 +5382,6 @@ class Text(Widget):
         if self["forceScroll"]:
             self["widget"].see("end")
         self["tagCounter"] += text.count("\n")
-        if disableAfterWrite:
-            self.setDisabled()
         return self
 
     def getText(self) -> str:
@@ -5294,21 +5400,16 @@ class Text(Widget):
         self["widget"].see("end")
         return self
 
+    @_lockable
     def clear(self):
         """
         Clears the Textbox.
         @return:
         """
-        disableAfterWrite = False
-        if self["widgetProperties"]["state"] == "disabled":
-            self.setEnabled()
-            disableAfterWrite = True
         self["widget"].delete(0.0, _tk.END)
         for i in self["widget"].tag_names():
             self["widget"].tag_delete(i)
         self["tagCounter"] = 0
-        if disableAfterWrite:
-            self.setDisabled()
         return self
 
     def getSelectedText(self) -> Union[str, None]:
@@ -5847,7 +5948,7 @@ class TreeView(Widget):
         return self["widget"].get_children()
 
 
-class SpinBox(Widget):
+class SpinBox(_LockableWidget):
     def __init__(self, _master, group=None, optionList: list = (), readOnly=True):
         if isinstance(_master, dict):
             self._data = _master
@@ -5857,6 +5958,7 @@ class SpinBox(Widget):
                 _master, Frame):
             self._data = {"master": _master, "widget": _tk.Spinbox(_master._get()), "readonly": readOnly,
                           "init": {"state": "readonly" if readOnly else "normal", "values": list(optionList)}}
+            self._setReadOnly(readOnly)
         else:
             raise TKExceptions.InvalidWidgetTypeException(
                 "_master must be " + str(self.__class__.__name__) + ", Frame or Tk instance not: " + str(
@@ -5872,28 +5974,18 @@ class SpinBox(Widget):
                                         decryptValueFunc=self._decryptEvent, defaultArgs=defaultArgs,
                                         disableArgs=disableArgs)
 
+    @_lockable
     def setValue(self, v, clearFirst=True):
-        disableAfterWrite = False
-        if self["readonly"]:
-            disableAfterWrite = True
-            self.setEnabled()
         if clearFirst: self.clear()
         self["widget"].insert(0, str(v))
-        if disableAfterWrite:
-            self._setAttribute("state", "readonly")
         return self
 
     def getValue(self) -> str:
         return self["widget"].get()
 
+    @_lockable
     def setOptionList(self, l: list):
-        disableAfterWrite = False
-        if self["readonly"]:
-            disableAfterWrite = True
-            self.setEnabled()
         self._setAttribute("values", l)
-        if disableAfterWrite:
-            self._setAttribute("state", "readonly")
 
     def clear(self):
         self["widget"].delete(0, "end")
@@ -5928,7 +6020,7 @@ class SpinBox(Widget):
         return self.getValue()
 
 
-class DropdownMenu(Widget):
+class DropdownMenu(_LockableWidget):
     def __init__(self, _master, group=None, optionList: list = [], readonly=True):
         if isinstance(_master, dict):
             self._data = _master
@@ -5940,9 +6032,7 @@ class DropdownMenu(Widget):
             self._data = {"master": _master, "widget": _ttk.Combobox(_master._get(), textvariable=stringVar),
                           "values": optionList, "stringVar": stringVar, "readonly": readonly,
                           "init": {"state": "readonly" if readonly else "normal", "values": list(optionList)}}
-            self.style = _ttk.Style()
-            # self.style.theme_use("clam")
-
+            self._setReadOnly(readonly)
         else:
             raise TKExceptions.InvalidWidgetTypeException(
                 "_master must be " + str(self.__class__.__name__) + ", Frame or Tk instance not: " + str(
@@ -5977,14 +6067,9 @@ class DropdownMenu(Widget):
                                                   disableArgs=disableArgs)
         return self
 
+    @_lockable
     def setValueByIndex(self, i: int):
-        disableAfterWrite = False
-        if self["readonly"]:
-            disableAfterWrite = True
-            self.setEnabled(True)
         self["widget"].current(i)
-        if disableAfterWrite:
-            self._setAttribute("state", "readonly")
         return self
 
     def getSelectedIndex(self) -> int | None:
@@ -5993,58 +6078,33 @@ class DropdownMenu(Widget):
             return self._data["values"].index(val)
         return None
 
+    @_lockable
     def clear(self):
-        disableAfterWrite = False
-        if self["readonly"]:
-            disableAfterWrite = True
-            self.setEnabled(True)
         self["widget"].delete(0, "end")
-        if disableAfterWrite:
-            self._setAttribute("state", "readonly")
         return self
 
     def setText(self, text):
         self.setValue(text)
         return self
 
+    @_lockable
     def setValue(self, text, clearFirst=True):
-        disableAfterWrite = False
-        if self["readonly"]:
-            disableAfterWrite = True
-            self.setEnabled(True)
         if clearFirst: self["widget"].delete(0, "end")
         self["widget"].insert(0, str(text))
-        if disableAfterWrite:
-            self._setAttribute("state", "readonly")
         return self
 
     def getValue(self):
         return self["widget"].get()
 
+    @_lockable
     def setOptionList(self, it: List[str]):
         self["values"] = it
-        disableAfterWrite = False
-        if self["readonly"]:
-            disableAfterWrite = True
-            self.setEnabled(True)
         self._setAttribute("values", it)
-        if disableAfterWrite:
-            self._setAttribute("state", "readonly")
         return self
 
     def addOption(self, i: str):
         self["values"].append(i)
         self.setOptionList(self["values"])
-        return self
-
-    def setBg(self, col: Union[Color, str]):
-        disableAfterWrite = False
-        if self["readonly"]:
-            disableAfterWrite = True
-            self.setEnabled(True)
-        self.style.map("TCombobox", fieldbackground="red")  # (col.value if hasattr(col, "value") else col)
-        if disableAfterWrite:
-            self._setAttribute("state", "readonly")
         return self
 
     def _decryptEvent(self, args, event):
@@ -6980,7 +7040,7 @@ class SimpleDialog:
         return SimpleDialog._dialog(_msgb.showwarning, master, message=message, title=title)
 
     @staticmethod
-    def askString(master, message="", title="", initialValue="", hideWith=None):
+    def askString(master, message="", title="", initialValue="", hideWith=None) -> str | None:
         return SimpleDialog._dialog(_simd.askstring, master, prompt=message, title=title, show=hideWith,
                                     initialvalue=initialValue)
 
@@ -7053,7 +7113,8 @@ class SimpleDialog:
                 return _return
 
     @staticmethod
-    def chooseFromList(master, title="", values=None, chooseOnlyOne=True, forceToChoose=True) -> str | list | None:
+    def chooseFromList(master, title="", values=None, chooseOnlyOne=True, forceToChoose=True, useIndexInstead=False,
+                       group=None) -> str | int | list | None:
         _return = None
         _masterNone = False
 
@@ -7063,7 +7124,7 @@ class SimpleDialog:
 
         def select(e):
             nonlocal _return
-            sel = list_.getSelectedItem()
+            sel = list_.getSelectedIndex() if useIndexInstead else list_.getSelectedItem()
             if sel is None:
                 if forceToChoose:
                     SimpleDialog.askError(dialog, "Please choose at least one!")
@@ -7082,14 +7143,14 @@ class SimpleDialog:
             master = Tk()
             master.hide()
 
-        dialog = Dialog(master)
+        dialog = Dialog(master, group)
         dialog.onCloseEvent(onClose)
         if forceToChoose:
             dialog.setCloseable(False)
         dialog.setWindowSize(200, 200)
         dialog.setResizeable(False)
         dialog.setTitle(title)
-        list_ = Listbox(dialog)
+        list_ = Listbox(dialog, group)
         if chooseOnlyOne:
             list_.setSingleSelect()
         else:
@@ -7098,9 +7159,10 @@ class SimpleDialog:
         list_.placeRelative(changeHeight=-30)
         list_.bind(select, EventType.DOUBBLE_LEFT)
 
-        Button(dialog).setText("Select").placeRelative(stickDown=True, fixHeight=30, xOffsetRight=50).setCommand(select)
-        canc = Button(dialog).setText("Cancel").placeRelative(stickDown=True, stickRight=True, fixHeight=30,
-                                                              xOffsetRight=50).setCommand(cancel)
+        Button(dialog, group).setText("Select").placeRelative(stickDown=True, fixHeight=30, xOffsetRight=50).setCommand(
+            select)
+        canc = Button(dialog, group).setText("Cancel").placeRelative(stickDown=True, stickRight=True, fixHeight=30,
+                                                                     xOffsetRight=50).setCommand(cancel)
         if forceToChoose: canc.disable()
         dialog.show()
         while True:
@@ -7113,7 +7175,7 @@ class SimpleDialog:
             elif isinstance(_return, list):
                 dialog.destroy()
                 if _masterNone: master.destroy()
-                return _return
+                return _return[0] if chooseOnlyOne else _return
 
     @staticmethod
     def _dialog(d, master, **kwargs):
