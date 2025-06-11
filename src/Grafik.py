@@ -358,8 +358,8 @@ class Neue_ware_einlagern_page(tk.MenuPage):
         self.dropdown_durchmesser_frame = tk.LabelFrame(self.frame, group=sg)
         self.dropdown_durchmesser_frame.place(x=300, y=0, width=500, height=50)
 
-        self.dropdown_durchmesser = tk.DropdownMenu(self.dropdown_durchmesser_frame, group=sg,
-                                                    optionList=["150mm", "200mm", "300mm"])
+        self.dropdown_durchmesser = LargeCombobox(self.dropdown_durchmesser_frame, group=sg)
+        self.dropdown_durchmesser.setOptionList(["150mm", "200mm", "300mm"])
         self.dropdown_durchmesser.place(x=0, y=0, width=497, height=46)
         self.dropdown_durchmesser.setFont(30)
         self.dropdown_durchmesser.attachToolTip("Durchmesser des Wafers auswählen")
@@ -688,10 +688,8 @@ class Alte_ware_einlagern_page(tk.MenuPage):
             self.dropdown_frame = tk.LabelFrame(self, group=sg)
 
 
-            self.dropdown_verpackung = tk.DropdownMenu(self.dropdown_frame, group=sg,
-                                                       optionList=["Single-Frameshipper", "Frameshipper", "Tape & Reel",
-                                                                   "8 Zoll Box", " 6 Zoll Box", "Andere"])
-
+            self.dropdown_verpackung = LargeCombobox(self.dropdown_frame, group=sg)
+            self.dropdown_verpackung.setOptionList(["Single-Frameshipper","Frameshipper", "Tape & Reel", "8 Zoll Box", "6 Zoll Box", "Andere", "12 Zoll Box"])
             self.dropdown_verpackung.setFont(20)
             self.dropdown_verpackung.attachToolTip("Verpackung auswählen")
 
@@ -713,13 +711,13 @@ class Alte_ware_einlagern_page(tk.MenuPage):
                 self.labels = []
                 self.list_entries_and_labels = []
                 self.headline = tk.Label(self, group=sg)
-                self.dropdown_frame_verpackung_label.placeRelative(centerX=True, changeY=100,changeX=-125,centerY=True, fixWidth=300, fixHeight=30)
+                self.dropdown_frame_verpackung_label.placeRelative(centerX=True, changeY=100,changeX=-175,centerY=True, fixWidth=300, fixHeight=50)
                 self.headline.setText(" ID:                    Stückzahl:   ")
                 self.headline.setFont(20)
                 self.headline.placeRelative(centerX=True, fixHeight=50, fixWidth=600, changeY=340)
-                self.dropdown_frame.placeRelative(centerX=True, changeY=100,changeX=125,centerY=True, fixWidth=300, fixHeight=30)
-                self.dropdown_verpackung.place(x=0, y=0, width=297, height=26)
-                self.wafer_frame = tk.ScrollableFrame(self,1000,600,contrastcolorsg)
+                self.dropdown_frame.placeRelative(centerX=True, changeY=100,changeX=100,centerY=True, fixWidth=350, fixHeight=50)
+                self.dropdown_verpackung.place(x=0, y=0, width=347, height=46)
+                self.wafer_frame = tk.ScrollableFrame(self,1500,600,contrastcolorsg)
 
                 self.wafer_frame.placeRelative(centerX=True,centerY=True, fixWidth=600,fixHeight=200,changeY=-50)
                 self.label_unbekannt = tk.Label(self.wafer_frame, contrastcolorsg)
@@ -1338,15 +1336,13 @@ class Search_page(tk.MenuPage):
             self.rootNoWafer.open()
             self.rootNoWafer.stueckzahl_alt_von.setText("von " + content["stueckzahl"])
             self.rootNoWafer.stueckzahl_alt.setText(content["stueckzahl"])
-
         else:
-
             self.rootWafer.open()
             self.rootWafer.wafer_treeview_auswahl.clear()
 
             for i in content["wafer"]:
-
                 self.rootWafer.wafer_treeview_auswahl.addEntry(i["Name"], i["Menge"])
+
 
     def printtest(self):
         uuid = self.getSelectedUuid()
@@ -1370,11 +1366,16 @@ class Search_page(tk.MenuPage):
         self.root.open()
 
     def auslesen(self):
+
         uuid = self.getSelectedUuid()
         self.data = []
-        for i in range(len(self.root.labels)):
-            if self.root.entries[i].getValue() != "Unbekannt":
 
+        for i in range(len(self.root.labels)):
+
+            if self.root.entries[i].getValue() == "":
+                continue
+            elif self.root.entries[i].getValue() != "Unbekannt":
+                print(self.root.entries[i].getValue())
                 self.data.append({"Name": self.root.labels[i].getText(), "Menge": int(self.root.entries[i].getValue())})
             elif self.root.entries[i].getValue() == "Unbekannt":
                 self.data.append({"Name": self.root.labels[i].getText(), "Menge": str("Unbekannt")})
@@ -1563,7 +1564,7 @@ class Search_page(tk.MenuPage):
 
     def ausgabe_anzeigen(self, regalplatzoderware):
         dataDict = lib.readUuid(regalplatzoderware)
-        if any(regalplatzoderware in sublist for sublist in lib.storageData.values()):
+        if any(regalplatzoderware in sublist for sublist in lib.storageData.values()) and Constants.admin==True:
             self.auslagern_button.placeRelative(centerY=True, stickRight=True, changeY=600 * Constants.resolution,
                                                 changeX=-400 * Constants.resolution,
                                                 fixWidth=200 * Constants.resolution,

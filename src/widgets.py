@@ -376,10 +376,11 @@ class AmountToOutSource(tk.Dialog):
 
 
 
-
+        
         for i in range(len(selectedEntries)):
             entry = tk.Entry(self, sg)
             label = tk.Label(self, sg)
+            label0 = tk.Label(self, sg)
             label_unbekannt = tk.Label(self, sg)
             if selectedEntries[i]["Stückzahl"] == "Unbekannt":
 
@@ -389,6 +390,13 @@ class AmountToOutSource(tk.Dialog):
                 label_unbekannt.setText("Unbekannt")
                 label_unbekannt.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=550)
                 label.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=200)
+            elif selectedEntries[i]["Stückzahl"] == 0:
+                label.setText(str(selectedEntries[i]["ID"]))
+                label.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=200)
+
+
+                label0.setText("0")
+                label0.placeRelative(fixHeight=50, fixWidth=250, fixY=60 + i * 60, fixX=550)
             else:
                 label.setText(str(selectedEntries[i]["ID"]))
                 entry.setText(selectedEntries[i]["Stückzahl"])
@@ -398,6 +406,7 @@ class AmountToOutSource(tk.Dialog):
             label_unbekannt.setFont(30)
             entry.setFont(30)
             label.setFont(30)
+            label0.setFont(30)
             self.labels.append(label)
             self.entries.append(entry)  # In der Liste speichern
 
